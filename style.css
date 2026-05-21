@@ -1,0 +1,577 @@
+/**
+ * style.css — Folha de estilos do sistema Perdi & Achei
+ *
+ * Organização:
+ * 1. Variáveis CSS (cores, sombras, bordas)
+ * 2. Reset e configurações globais
+ * 3. Cabeçalho hero (fundo escuro com gradiente)
+ * 4. Navegação
+ * 5. Conteúdo principal: grid, cards, formulário
+ * 6. Lista de registros e filtros
+ * 7. Seção de fluxo de dados
+ * 8. Rodapé
+ * 9. Media queries (responsividade para telas menores)
+ */
+
+/* ─── 1. VARIÁVEIS CSS ────────────────────────────────────────────────────────
+   Variáveis (custom properties) permitem definir valores reutilizáveis.
+   São declaradas em :root (escopo global) e acessadas via var(--nome).
+   Isso centraliza cores e facilita a manutenção do design. */
+:root {
+  --azul: #0050a0;          /* Cor principal da marca */
+  --azul-2: #0066cc;        /* Variação mais clara do azul */
+  --azul-escuro: #052b55;   /* Azul escuro para textos e títulos */
+  --azul-claro: #e6f0ff;    /* Azul muito claro para fundos suaves */
+  --verde: #1f8f4d;         /* Cor dos itens "encontrado" */
+  --vermelho: #c0392b;      /* Cor dos itens "perdido" */
+  --amarelo: #f9b233;       /* Cor de destaque (botão principal) */
+  --texto: #1f2937;         /* Cor padrão para texto corrido */
+  --cinza: #667085;         /* Cinza para textos secundários e legendas */
+  --linha: #dbe6f3;         /* Cor das bordas e separadores */
+  --fundo: #f4f7fb;         /* Cor de fundo da página */
+  --branco: #ffffff;
+  --sombra: 0 18px 45px rgba(11, 39, 75, 0.14); /* Sombra padrão dos cards */
+  --raio: 24px;             /* Raio de borda padrão para cantos arredondados */
+}
+
+/* ─── 2. RESET E CONFIGURAÇÕES GLOBAIS ───────────────────────────────────────
+   box-sizing: border-box faz com que padding e border sejam incluídos
+   no tamanho declarado do elemento (evita surpresas no layout). */
+* {
+  box-sizing: border-box;
+}
+
+/* Ativa a rolagem suave ao clicar em links de âncora (href="#secao"). */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  /* Fundo com dois gradientes sobrepostos: um radial no canto superior esquerdo
+     e um linear vertical de azul muito claro para um tom ainda mais suave. */
+  background:
+    radial-gradient(circle at top left, rgba(0, 80, 160, 0.16), transparent 32%),
+    linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%);
+  color: var(--texto);
+}
+
+/* Impede que imagens ultrapassem a largura do contêiner pai. */
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ─── 3. SEÇÃO HERO ──────────────────────────────────────────────────────────
+   O hero é a área de destaque no topo da página, com fundo escuro e gradiente.
+   Usa múltiplos gradientes sobrepostos para criar profundidade visual. */
+.hero {
+  min-height: 560px;
+  padding: 28px 6vw 86px; /* 6vw = 6% da largura da janela (padding responsivo) */
+  color: white;
+  background:
+    linear-gradient(100deg, rgba(4, 30, 64, 0.96), rgba(0, 80, 160, 0.82)),
+    radial-gradient(circle at 82% 18%, rgba(249, 178, 51, 0.35), transparent 28%),
+    var(--azul-escuro);
+  overflow: hidden;  /* Oculta o pseudo-elemento ::after que transborda */
+  position: relative; /* Necessário para posicionar o ::after dentro do hero */
+}
+
+/* Pseudo-elemento decorativo: cria um círculo semi-transparente no canto inferior direito.
+   É puramente visual e não interfere no conteúdo. */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: auto -80px -180px auto; /* Posiciona no canto inferior direito */
+  width: 420px;
+  height: 420px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%; /* Torna o elemento circular */
+}
+
+/* ─── 4. NAVEGAÇÃO ───────────────────────────────────────────────────────────
+   A nav usa flexbox para alinhar logo e links lado a lado. */
+.nav {
+  max-width: 1180px;   /* Limita a largura para não esticar demais em telas grandes */
+  margin: 0 auto 68px; /* Centraliza e adiciona espaço abaixo */
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Logo à esquerda, links à direita */
+  gap: 24px;
+  position: relative;
+  z-index: 2; /* Garante que a nav fique acima do pseudo-elemento ::after */
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  text-decoration: none;
+  font-weight: 900;
+  font-size: 1.2rem;
+}
+
+.marca-img {
+  width: 48px;
+  height: 48px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap; /* Quebra em linhas se não houver espaço suficiente */
+}
+
+.nav-links a {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  font-weight: 800;
+}
+
+/* Efeito hover: aumenta a opacidade do link ao passar o mouse. */
+.nav-links a:hover {
+  color: white;
+}
+
+/* ─── CONTEÚDO DO HERO ────────────────────────────────────────────────────────
+   Grid de duas colunas: texto à esquerda (maior) e card à direita (menor). */
+.hero-conteudo {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.08fr 0.92fr; /* fr = fração do espaço disponível */
+  gap: 54px;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+/* Badge: pílula de destaque para informações curtas (tecnologias usadas). */
+.badge {
+  display: inline-flex;
+  padding: 9px 14px;
+  border-radius: 999px; /* Valor alto garante bordas completamente arredondadas (pílula) */
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  font-weight: 800;
+  margin-bottom: 18px;
+}
+
+/* clamp(mín, preferido, máx): tamanho de fonte fluido que se adapta à largura da tela. */
+h1 {
+  font-size: clamp(2.7rem, 6vw, 5rem);
+  line-height: 0.94;
+  margin: 0 0 22px;
+  letter-spacing: -2px;
+}
+
+.hero p {
+  font-size: 1.22rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.92);
+  max-width: 670px;
+}
+
+.acoes {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+/* ─── 5. BOTÕES ──────────────────────────────────────────────────────────────
+   Estilos base compartilhados por botões e filtros, seguidos de variações. */
+.btn,
+.btn-atualizar,
+.filtro {
+  border: 0;
+  cursor: pointer;
+  font-family: inherit; /* Herda a fonte do body em vez de usar a padrão do navegador */
+}
+
+.btn {
+  border-radius: 14px;
+  padding: 15px 22px;
+  font-weight: 900;
+  text-decoration: none;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  /* transition: suaviza as mudanças de transform e box-shadow ao passar o mouse */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Efeito hover: eleva levemente o botão para simular profundidade. */
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Botão principal com fundo amarelo (chama a atenção). */
+.btn-principal {
+  background: var(--amarelo);
+  color: #1b1b1b;
+  box-shadow: 0 14px 30px rgba(249, 178, 51, 0.28);
+}
+
+/* Botão secundário com fundo semitransparente (sobre o hero escuro). */
+.btn-secundario {
+  background: rgba(255, 255, 255, 0.14);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+/* Card lateral do hero com efeito de vidro fosco (glassmorphism).
+   backdrop-filter: blur() cria o desfoque do fundo atrás do card. */
+.hero-card {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 32px;
+  padding: 22px;
+  box-shadow: var(--sombra);
+  backdrop-filter: blur(12px);
+}
+
+.hero-card > img {
+  border-radius: 24px;
+  background: #ffffff;
+  padding: 10px;
+}
+
+/* Grid de duas colunas para exibir as métricas do sistema. */
+.hero-metricas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.hero-metricas div {
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--texto);
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.hero-metricas strong {
+  display: block;
+  font-size: 1.8rem;
+  color: var(--azul);
+}
+
+.hero-metricas span {
+  font-size: 0.92rem;
+  color: var(--cinza);
+  font-weight: 800;
+}
+
+/* ─── ÁREA PRINCIPAL (.container) ────────────────────────────────────────────
+   margin-top negativo (-50px) faz os cards "subirem" sobre o hero,
+   criando uma transição visual entre as seções. */
+.container {
+  max-width: 1180px;
+  margin: -50px auto 70px;
+  padding: 0 6vw;
+  position: relative;
+  z-index: 3; /* Acima do hero para aparecer na frente */
+}
+
+/* Grid de duas colunas: formulário (esquerda, menor) e lista (direita, maior). */
+.grid-principal {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 28px;
+  align-items: start; /* Alinha os cards pelo topo (não pela altura) */
+}
+
+/* Estilo base dos cards brancos com sombra. */
+.card {
+  background: var(--branco);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: 28px;
+  border: 1px solid rgba(0, 80, 160, 0.08);
+}
+
+.card-cabecalho {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.card-cabecalho img {
+  width: 64px;
+  height: 64px;
+}
+
+.card h2 {
+  margin: 0 0 6px;
+  color: var(--azul-escuro);
+  font-size: 1.65rem;
+  letter-spacing: -0.5px;
+}
+
+.card p {
+  margin: 0;
+  color: var(--cinza);
+  line-height: 1.55;
+}
+
+/* ─── FORMULÁRIO ─────────────────────────────────────────────────────────────
+   display: grid com gap cria espaçamento uniforme entre os campos. */
+form {
+  display: grid;
+  gap: 16px;
+}
+
+/* label em grid: exibe o texto acima do campo de entrada. */
+label {
+  display: grid;
+  gap: 7px;
+  font-weight: 900;
+  color: var(--azul-escuro);
+}
+
+/* Estilo compartilhado para todos os campos de entrada. */
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 14px 15px;
+  border-radius: 14px;
+  border: 1px solid var(--linha);
+  background: #fbfdff;
+  font: inherit; /* Herda fonte do label (evita a fonte padrão do navegador para inputs) */
+  color: var(--texto);
+  outline: none; /* Remove o contorno padrão do navegador (substituído pelo box-shadow abaixo) */
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Quando o campo está em foco (usuário digitando): destaque azul com halo suave. */
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--azul);
+  box-shadow: 0 0 0 4px rgba(0, 80, 160, 0.12);
+}
+
+/* Permite redimensionar o textarea apenas verticalmente. */
+textarea {
+  min-height: 115px;
+  resize: vertical;
+}
+
+/* Layout de duas colunas para os campos Tipo e Data ficarem lado a lado. */
+.duas-colunas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* Botão de submit do formulário: ocupa a largura total. */
+.btn-form {
+  width: 100%;
+  background: var(--azul);
+  color: white;
+  margin-top: 4px;
+  box-shadow: 0 16px 30px rgba(0, 80, 160, 0.22);
+}
+
+/* ─── MENSAGEM DE FEEDBACK ───────────────────────────────────────────────────
+   Por padrão está oculta (display: none).
+   O JavaScript adiciona as classes "sucesso" ou "erro" para exibi-la. */
+.mensagem {
+  margin-top: 16px;
+  padding: 13px 15px;
+  border-radius: 14px;
+  font-weight: 900;
+  display: none;
+}
+
+.mensagem.sucesso {
+  display: block;
+  background: #e9f8ef;
+  color: #17643a;
+}
+
+.mensagem.erro {
+  display: block;
+  background: #fff0ee;
+  color: #a53024;
+}
+
+/* ─── BARRA DE AÇÕES (filtros + atualizar) ───────────────────────────────────
+   Flexbox com space-between posiciona os filtros à esquerda e o botão à direita. */
+.barra-acoes {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.filtros {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Estilo base dos botões de filtro e de atualização. */
+.filtro,
+.btn-atualizar {
+  border: 1px solid var(--linha);
+  background: white;
+  color: var(--azul-escuro);
+  padding: 10px 14px;
+  border-radius: 999px; /* Forma de pílula */
+  font-weight: 900;
+}
+
+/* Filtro ativo: fundo azul para indicar qual está selecionado. */
+.filtro.ativo {
+  background: var(--azul);
+  color: white;
+  border-color: var(--azul);
+}
+
+.btn-atualizar {
+  background: var(--azul-claro);
+}
+
+/* ─── LISTA DE REGISTROS ─────────────────────────────────────────────────────
+   Cada item da lista é gerado dinamicamente pelo JavaScript. */
+.lista {
+  display: grid;
+  gap: 16px;
+}
+
+/* Cada registro exibido como um card com ícone à esquerda e dados à direita. */
+.item {
+  display: grid;
+  grid-template-columns: 86px 1fr; /* Coluna fixa para o ícone + coluna flexível para o texto */
+  gap: 16px;
+  padding: 16px;
+  border-radius: 20px;
+  background: #f8fbff;
+  border: 1px solid #e3ebf5;
+}
+
+/* Quadrado com ícone emoji centralizado usando grid place-items. */
+.item-img {
+  height: 86px;
+  border-radius: 18px;
+  background: var(--azul-claro);
+  display: grid;
+  place-items: center; /* Centraliza vertical e horizontalmente */
+  font-size: 2.25rem;
+}
+
+.item h3 {
+  margin: 0 0 8px;
+  font-size: 1.22rem;
+  color: var(--azul-escuro);
+}
+
+.item p {
+  margin: 5px 0;
+  color: var(--cinza);
+}
+
+/* ─── TAG DE TIPO (perdido / encontrado) ─────────────────────────────────────
+   Pílula colorida que indica visualmente o status do item. */
+.tag {
+  display: inline-flex;
+  width: fit-content;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  margin-bottom: 7px;
+}
+
+/* Tags coloridas de acordo com o tipo: vermelho para perdido, verde para encontrado. */
+.tag.perdido {
+  background: #ffe8e5;
+  color: var(--vermelho);
+}
+
+.tag.encontrado {
+  background: #e9f8ef;
+  color: var(--verde);
+}
+
+/* ─── SEÇÃO FLUXO DE DADOS ───────────────────────────────────────────────────
+   Grid de duas colunas: texto à esquerda e imagem explicativa à direita. */
+.fluxo {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.fluxo img {
+  width: 100%;
+  border-radius: 22px;
+  background: #f8fbff;
+  border: 1px solid #e3ebf5;
+}
+
+/* ─── RODAPÉ ─────────────────────────────────────────────────────────────────*/
+footer {
+  text-align: center;
+  color: var(--cinza);
+  padding: 8px 6vw 45px;
+  font-weight: 800;
+}
+
+/* ─── 9. RESPONSIVIDADE ──────────────────────────────────────────────────────
+   @media queries aplicam estilos apenas quando a tela atinge certas dimensões.
+   Aqui usamos "max-width" para adaptar o layout em telas menores (mobile-first invertido). */
+
+/* Telas médias (tablets e celulares grandes): uma coluna em vez de duas. */
+@media (max-width: 940px) {
+  /* Empilha as colunas do hero, do grid principal e do fluxo verticalmente. */
+  .hero-conteudo,
+  .grid-principal,
+  .fluxo {
+    grid-template-columns: 1fr;
+  }
+
+  /* Nav em coluna: logo em cima, links abaixo. */
+  .nav {
+    align-items: flex-start;
+    flex-direction: column;
+    margin-bottom: 44px;
+  }
+}
+
+/* Telas pequenas (celulares): ajustes finos para conforto de leitura. */
+@media (max-width: 620px) {
+  .hero {
+    padding: 24px 5vw 60px;
+  }
+
+  /* Campos Tipo+Data e métricas do hero ficam empilhados em tela pequena. */
+  .duas-colunas,
+  .hero-metricas {
+    grid-template-columns: 1fr;
+  }
+
+  /* Itens da lista ficam com layout de coluna única (ícone acima, texto abaixo). */
+  .item {
+    grid-template-columns: 1fr;
+  }
+
+  .item-img {
+    height: 76px;
+  }
+
+  .card {
+    padding: 22px;
+  }
+}
